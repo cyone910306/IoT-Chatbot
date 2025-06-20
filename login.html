@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 및 회원가입</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; margin: 0; }
+        .container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); width: 350px; text-align: center; }
+        h2 { margin-bottom: 20px; color: #333; }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"], /* 이메일 타입 추가 */
+        select { width: calc(100% - 20px); padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-bottom: 10px; }
+        button:hover { background-color: #0056b3; }
+        .switch-button { background-color: #6c757d; }
+        .switch-button:hover { background-color: #5a6268; }
+        .message { margin-top: 15px; font-weight: bold; }
+        .success { color: green; }
+        .error { color: red; }
+        #loginForm, #registerForm { display: none; } /* 초기에는 숨김 */
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="mainMenu">
+            <h2>환영합니다!</h2>
+            <button onclick="showLoginForm()">로그인</button>
+            <button onclick="showRegisterForm()">회원가입</button>
+        </div>
+
+        <div id="loginForm">
+            <h2>로그인</h2>
+            <input type="text" id="loginUsername" placeholder="아이디" required>
+            <input type="password" id="loginPassword" placeholder="비밀번호" required>
+            <button onclick="login()">로그인</button>
+            <button class="switch-button" onclick="showMainMenu()">뒤로가기</button>
+            <p id="loginMessage" class="message"></p>
+        </div>
+
+        <div id="registerForm">
+            <h2>회원가입</h2>
+            <input type="text" id="registerUsername" placeholder="아이디 (이메일이 아니어도 됨)" required>
+            <input type="password" id="registerPassword" placeholder="비밀번호" required>
+            <select id="teamSelect" required>
+                <option value="">팀 소속 선택</option>
+                <option value="IoT기획팀">IoT기획팀</option>
+                <option value="IoT플랫폼팀">IoT플랫폼팀</option>
+                <option value="IoT개발팀">IoT개발팀</option>
+                <option value="IoT서비스개발TF">IoT서비스개발TF</option>
+                <option value="모바일앱개발팀">모바일앱개발팀</option>
+                <option value="프론트엔드개발팀">프론트엔드개발팀</option>
+                <option value="메가존">메가존</option>
+            </select>
+            <button onclick="register()">회원가입</button>
+            <button class="switch-button" onclick="showMainMenu()">뒤로가기</button>
+            <p id="registerMessage" class="message"></p>
+        </div>
+    </div>
+
+    <script>
+        // 관리자 계정 정보
+        const admins = {
+            '원창연': '1234',
+            '오종하': '1234',
+            '김태현': '1234'
+        };
+
+        // 가상의 사용자 데이터베이스 (실제로는 서버에서 관리)
+        let users = [];
+
+        // 페이지 로드 시 초기 화면 설정
+        document.addEventListener('DOMContentLoaded', () => {
+            showMainMenu();
+        });
+
+        // --- 화면 전환 함수 ---
+        function showMainMenu() {
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            // 메시지 초기화
+            document.getElementById('loginMessage').textContent = '';
+            document.getElementById('registerMessage').textContent = '';
+        }
+
+        function showLoginForm() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginMessage').textContent = ''; // 메시지 초기화
+        }
+
+        function showRegisterForm() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('registerMessage').textContent = ''; // 메시지 초기화
+        }
+
+        // --- 로그인 함수 ---
+        function login() {
+            const usernameInput = document.getElementById('loginUsername');
+            const passwordInput = document.getElementById('loginPassword');
+            const messageElement = document.getElementById('loginMessage');
+
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            // 입력값 유효성 검사
+            if (!username || !password) {
+                messageElement.className = 'message error';
+                messageElement.textContent = '아이디와 비밀번호를 모두 입력해주세요.';
+                return;
+            }
+
+            // 1. 관리자 로그인 시도
+            if (admins[username] && admins[username] === password) {
+                messageElement.className = 'message success';
+                messageElement.textContent = `관리자 ${username}님, 로그인 성공!`;
+                console.log(`관리자 로그인: ${username}`);
+                // 실제 환경에서는 관리자 페이지로 리다이렉트
+                // alert(`${username} 관리자로 로그인되었습니다!`);
+                // window.location.href = '/admin_dashboard.html';
+                return;
+            }
+
+            // 2. 일반 사용자 로그인 시도
+            const foundUser = users.find(user => user.username === username && user.password === password);
+
+            if (foundUser) {
+                messageElement.className = 'message success';
+                messageElement.textContent = `환영합니다, ${username}님! (소속: ${foundUser.team})`;
+                console.log(`일반 사용자 로그인: ${username}, 소속: ${foundUser.team}`);
+                // 실제 환경에서는 일반 사용자 페이지로 리다이렉트
+                // alert(`${username}님으로 로그인되었습니다!`);
+                // window.location.href = '/user_dashboard.html';
+            } else {
+                messageElement.className = 'message error';
+                messageElement.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
+            }
+
+            // 입력 필드 초기화 (선택 사항)
+            // usernameInput.value = '';
+            // passwordInput.value = '';
+        }
+
+        // --- 회원가입 함수 ---
+        function register() {
+            const usernameInput = document.getElementById('registerUsername');
+            const passwordInput = document.getElementById('registerPassword');
+            const teamSelect = document.getElementById('teamSelect');
+            const messageElement = document.getElementById('registerMessage');
+
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+            const team = teamSelect.value;
+
+            // 입력값 유효성 검사
+            if (!username || !password || !team) {
+                messageElement.className = 'message error';
+                messageElement.textContent = '모든 정보를 입력해주세요.';
+                return;
+            }
+
+            // 아이디 중복 확인
+            if (users.some(user => user.username === username)) {
+                messageElement.className = 'message error';
+                messageElement.textContent = '이미 사용 중인 아이디입니다.';
+                return;
+            }
+
+            // 새 사용자 추가 (실제로는 서버의 DB에 저장)
+            const newUser = { username, password, team };
+            users.push(newUser);
+
+            messageElement.className = 'message success';
+            messageElement.textContent = `회원가입이 완료되었습니다! (아이디: ${username}, 소속: ${team})`;
+            console.log('새로운 사용자 등록:', newUser);
+
+            // 회원가입 후 입력 필드 초기화
+            usernameInput.value = '';
+            passwordInput.value = '';
+            teamSelect.value = ''; // 드롭다운 초기화
+
+            // 선택적으로 회원가입 성공 후 로그인 폼으로 전환
+            // setTimeout(() => {
+            //     showLoginForm();
+            //     document.getElementById('loginUsername').value = username; // 가입한 아이디 자동 입력
+            // }, 1500);
+        }
+    </script>
+
+</body>
+</html>

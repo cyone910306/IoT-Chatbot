@@ -1,0 +1,19 @@
+
+{
+  "name": "internal-document-chatbot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A chatbot that answers questions based on user-provided document content. Deployed as a static site. API_KEY environment variable must be set on the hosting platform (e.g., Vercel).",
+  "scripts": {
+    "info": "echo \"This project is deployed as a static site. No npm build script is typically run by Vercel for this configuration. Ensure API_KEY is set in Vercel's environment variables.\""
+  },
+  "keywords": [
+    "react",
+    "chatbot",
+    "gemini-api",
+    "static-site",
+    "typescript"
+  ],
+  "author": "Your Name (or leave blank)",
+  "license": "ISC"
+}

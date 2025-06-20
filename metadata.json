@@ -1,0 +1,6 @@
+{
+  "name": "내부 문서 챗봇",
+  "description": "사용자가 제공한 문서 내용을 기반으로 질문에 답변하는 챗봇입니다. 정책 문서, 설계 사양서 등 내부 팀용으로 적합합니다.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
